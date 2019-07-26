@@ -180,4 +180,4 @@ async def on_command_error(ctx, error):
 
 #background tasks
 
-bot.run('TOKEN')
+bot.run(TOKEN)
