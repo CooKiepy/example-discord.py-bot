@@ -2,6 +2,7 @@ import discord
 import random
 import asyncio
 from discord.ext import commands
+from itertools import cycle
 
 bot = commands.Bot(command_prefix = '.')
 TOKEN = open("TOKEN.TXT", "r").read()
