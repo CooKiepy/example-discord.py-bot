@@ -32,7 +32,7 @@ async def ping(ctx):
 @bot.command()
 async def help(ctx):
     embed = discord.Embed(
-        title="Egroid", description="Commands:", color=0xA121FF)
+        title="Bot", description="Commands:", color=0xA121FF)
 
     embed.add_field(
         name=".help", value="Gives this message.", inline=False)
