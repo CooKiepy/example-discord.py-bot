@@ -9,6 +9,5 @@ Requirements are in requirements.txt
 
 python version is in runtime.txt
 
-!!! question "Need more help?"
-    Have any questions, or just need some assistance?
-    Join [my Discord server](https://discord.gg/HGEfujy).
+Need more help? Have any questions, or just need some assistance?
+Join [my Discord server](https://discord.gg/HGEfujy).
