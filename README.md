@@ -1,8 +1,8 @@
-# example-discord.py-bot
+# I'll redo this later with a better example | example-discord.py-bot
 This is a super simple discord.py bot with enough code to start the bot and it has some extra commands.
 
 -------------------------------------------------------------------------------------------------------
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/67a3545c33d24d308b0b9d1e775ac292)](https://www.codacy.com/app/Wallvon/example-discord.py-bot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Wallvon/example-discord.py-bot&amp;utm_campaign=Badge_Grade)
+[![CodeFactor](https://www.codefactor.io/repository/github/wallvon/example-discord.py-bot/badge)](https://www.codefactor.io/repository/github/wallvon/example-discord.py-bot)
 -------------------------------------------------------------------------------------------------------
 
 Requirements are in requirements.txt
