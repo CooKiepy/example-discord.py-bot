@@ -2,13 +2,13 @@ import discord
 import random
 import asyncio
 from discord.ext import commands
-from itertools import cycle
 
 bot = commands.Bot(command_prefix = '.')
 TOKEN = open("TOKEN.TXT", "r").read()
 
 @bot.event
 async def on_ready():
+    await bot.change_presence(status=discord.Status.online, activity=discord.Game('.help'))
     print("--------------------")
     print('Logged in as')
     print(bot.user.name)
@@ -22,8 +22,10 @@ bot.remove_command('help')
 
 @bot.command()
 async def ping(ctx):
-    """Pings the bot."""
-    await ctx.send(f'🏓 Pong! {round(bot.latency * 1000)}ms')
+  embed = discord.Embed(title="Ping", color=0x0c0f27)
+  embed.add_field(name="Bot", value=f'🏓 Pong! {round(bot.latency * 1000)}ms')
+  embed.set_footer(text=f"Request by {ctx.author}", icon_url=ctx.author.avatar_url)
+  await ctx.send(embed=embed)
 
 #ping
 
@@ -32,62 +34,21 @@ async def ping(ctx):
 @bot.command()
 async def help(ctx):
     embed = discord.Embed(
-        title="Bot", description="Commands:", color=0xA121FF)
-
+        title="Bot", description="Commands:", color=0x0c0f27)
     embed.add_field(
         name=".help", value="Gives this message.", inline=False)
     embed.add_field(
         name=".ping", value="Pings the bot.", inline=False)
     embed.add_field(
-        name=".8ball", value="Gives responses like an 8ball.", inline=False)
-    embed.add_field(
         name=".kick", value="Kicks a member.", inline=False)
     embed.add_field(
         name=".ban", value="Bans a member.", inline=False)
+    embed.add_field(
+        name=".clear", value="Clears the `x` amount of messages specified.", inline=False)
 
     await ctx.send(embed=embed)
 
 #help
-
-#8ball
-
-
-@bot.command(aliases=['8ball', 'eightball'])
-async def _8ball(ctx, *, question):
-    """Gives responses like an 8ball. (You can use _8ball, 8ball, or eightball to activate the command.)"""
-    responses = ['It is certain',
-                 'It is decidebly so.',
-                 'Without a doubt',
-                 'Yes - definetely.',
-                 'You may rely on it.',
-                 'As I see it, yes.',
-                 'Most likely.',
-                 'Outlook good.',
-                 'Yes.',
-                 'Signs point to yes.',
-                 'Reply hazy, try again.',
-                 'Ask again later.',
-                 'Better not tell you now.',
-                 'Cannot predict now.',
-                 'Concentrate and ask again.',
-                 "Don't count on it.",
-                 'My reply is no.',
-                 'My sources say no',
-                 'Outlook not so good.',
-                 'Very doubtful.']
-    await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}')
-
-
-@_8ball.error
-async def _8ball_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("You need to write the question after the command.")
-    if isinstance(error, commands.BadArgument):
-        await ctx.send("Give an intiger.")
-
-    raise error
-
-#8ball
 
 #clear
 
@@ -95,19 +56,10 @@ async def _8ball_error(ctx, error):
 @bot.command()
 @commands.has_permissions(manage_messages=True)
 async def clear(ctx, amount: int):
-    """Clears the amount of messages that you filled in."""
     await ctx.channel.purge(limit=amount + 1)
-    await ctx.send(f"{amount} messages got deleted.")
-
-
-@clear.error
-async def clear_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("You need to specify an amount.")
-    if isinstance(error, commands.BadArgument):
-        await ctx.send("Give an intiger.")
-
-    raise error
+    deletemessage = await ctx.send(f"{amount} messages got deleted.")
+    await asyncio.sleep(3)
+    await deletemessage.delete()
 
 #clear
 
@@ -117,9 +69,8 @@ async def clear_error(ctx, error):
 @bot.command()
 @commands.has_permissions(kick_members=True)
 async def kick(ctx, member: discord.Member, *, reason=None):
-    """Kicks a member."""
     await member.kick(reason=reason)
-    await ctx.send(f'Kicked {member.mention}')
+    await ctx.send(f'Kicked {member.mention}\nReason: {reason}')
 
 #kick
 
@@ -129,9 +80,8 @@ async def kick(ctx, member: discord.Member, *, reason=None):
 @bot.command()
 @commands.has_permissions(ban_members=True)
 async def ban(ctx, member: discord.Member, *, reason=None):
-    """Bans a member."""
     await member.ban(reason=reason)
-    await ctx.send(f'Banned {member.mention}')
+    await ctx.send(f'Banned {member.mention}\nReason: {reason}')
 
 #ban
 
@@ -156,29 +106,25 @@ async def unban(ctx, *, member):
 
 #background tasks
 
-async def chng_pr():
-    await bot.wait_until_ready()
-
-    statuses = [".help", ".ping", ".kick", ".ban", ".clear", ".8ball"]
-    statuses = cycle(statuses)
-
-    while not bot.is_closed():
-        status = next(statuses)
-
-        await bot.change_presence(activity=discord.Game(status))
-
-        await asyncio.sleep(5)
-
-bot.loop.create_task(chng_pr())
-
-
+@bot.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
-        await ctx.send("You don't have the permission to perform that command.")
+    logging.error(f'Error on command {ctx.invoked_with}, {error}')
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send("The command is not found")
-
-    raise error
+        embed = discord.Embed(title="Error!",
+                              description=f"The command `{ctx.invoked_with}` was not found! We suggest you do `.help` to see all of the commands",
+                              colour=0xe73c24)
+        await ctx.send(embed=embed)
+    elif isinstance(error, commands.MissingRole):
+        embed = discord.Embed(title="Error!",
+                              description=f"You don't have permission to execute `{ctx.invoked_with}`.",
+                              colour=0xe73c24)
+        await ctx.send(embed=embed)
+    else:
+        embed = discord.Embed(title="Error!",
+                              description=f"`{error}`",
+                              colour=0xe73c24)
+        await ctx.send(embed=embed)
+        raise error
 
 #background tasks
 
